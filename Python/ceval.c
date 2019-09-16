@@ -1318,16 +1318,25 @@ main_loop:
             }
             /* val stack */
             /* TODO: use Python's pretty printer */
-            printf("val stack: [");
-            if (STACK_LEVEL() >= 1) {
-                PyObject_Print(PEEK(1), stdout, 0);
+            printf("{\n");
+            if (EMPTY()) {
+                printf("  \"val stack\": []\n");
+            } else {
+                printf("  \"val stack\": [\n");
+                if (STACK_LEVEL() >= 1) {
+                    printf("                 { \"type\": \"%s\", \"value\": \"", Py_TYPE(PEEK(1))->tp_name);
+                    PyObject_Print(PEEK(1), stdout, 0);
+                    printf("\" }");
+                }
+                for (int i = 2; i <= STACK_LEVEL(); i++) {
+                    printf(",\n");
+                    printf("                 { \"type\": \"%s\", \"value\": \"", Py_TYPE(PEEK(1))->tp_name);
+                    PyObject_Print(PEEK(i), stdout, 0);
+                    printf("\" }");
+                }
+                printf("\n               ]\n");
             }
-            for (int i = 2; i <= STACK_LEVEL(); i++) {
-                printf(", ");
-                PyObject_Print(PEEK(i), stdout, 0);
-            }
-            printf("]");
-            printf("\n");
+            printf("}\n");
         }
 #endif
 

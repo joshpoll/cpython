@@ -959,34 +959,34 @@ _PyEval_EvalFrameDefault(PyFrameObject *f, int throwflag)
 #define BASIC_PUSH(v)     (*stack_pointer++ = (v))
 #define BASIC_POP()       (*--stack_pointer)
 
-#ifdef LLTRACE
-#define PUSH(v)         { (void)(BASIC_PUSH(v), \
-                          lltrace && prtrace(tstate, TOP(), "push")); \
-                          assert(STACK_LEVEL() <= co->co_stacksize); }
-#define POP()           ((void)(lltrace && prtrace(tstate, TOP(), "pop")), \
-                         BASIC_POP())
-#define STACK_GROW(n)   do { \
-                          assert(n >= 0); \
-                          (void)(BASIC_STACKADJ(n), \
-                          lltrace && prtrace(tstate, TOP(), "stackadj")); \
-                          assert(STACK_LEVEL() <= co->co_stacksize); \
-                        } while (0)
-#define STACK_SHRINK(n) do { \
-                            assert(n >= 0); \
-                            (void)(lltrace && prtrace(tstate, TOP(), "stackadj")); \
-                            (void)(BASIC_STACKADJ(-n)); \
-                            assert(STACK_LEVEL() <= co->co_stacksize); \
-                        } while (0)
-#define EXT_POP(STACK_POINTER) ((void)(lltrace && \
-                                prtrace(tstate, (STACK_POINTER)[-1], "ext_pop")), \
-                                *--(STACK_POINTER))
-#else
+// #ifdef LLTRACE
+// #define PUSH(v)         { (void)(BASIC_PUSH(v), \
+//                           lltrace && prtrace(tstate, TOP(), "push")); \
+//                           assert(STACK_LEVEL() <= co->co_stacksize); }
+// #define POP()           ((void)(lltrace && prtrace(tstate, TOP(), "pop")), \
+//                          BASIC_POP())
+// #define STACK_GROW(n)   do { \
+//                           assert(n >= 0); \
+//                           (void)(BASIC_STACKADJ(n), \
+//                           lltrace && prtrace(tstate, TOP(), "stackadj")); \
+//                           assert(STACK_LEVEL() <= co->co_stacksize); \
+//                         } while (0)
+// #define STACK_SHRINK(n) do { \
+//                             assert(n >= 0); \
+//                             (void)(lltrace && prtrace(tstate, TOP(), "stackadj")); \
+//                             (void)(BASIC_STACKADJ(-n)); \
+//                             assert(STACK_LEVEL() <= co->co_stacksize); \
+//                         } while (0)
+// #define EXT_POP(STACK_POINTER) ((void)(lltrace && \
+//                                 prtrace(tstate, (STACK_POINTER)[-1], "ext_pop")), \
+//                                 *--(STACK_POINTER))
+// #else
 #define PUSH(v)                BASIC_PUSH(v)
 #define POP()                  BASIC_POP()
 #define STACK_GROW(n)          BASIC_STACKADJ(n)
 #define STACK_SHRINK(n)        BASIC_STACKADJ(-n)
 #define EXT_POP(STACK_POINTER) (*--(STACK_POINTER))
-#endif
+// #endif
 
 /* Local variable macros */
 
@@ -1303,7 +1303,10 @@ main_loop:
 
 #ifdef LLTRACE
         /* Instruction tracing */
-
+        /* @jmp: edits here to per-opcode debug output */
+        /* TODO: how to trace after the last opcode is executed? could insert a NOP myself? */
+        /* TODO: would be nice to use the new opcode-level tracing, but not sure how to expose
+            value stack on python side. */
         if (lltrace) {
             if (HAS_ARG(opcode)) {
                 printf("%d: %d, %d\n",
@@ -1313,6 +1316,18 @@ main_loop:
                 printf("%d: %d\n",
                        f->f_lasti, opcode);
             }
+            /* val stack */
+            /* TODO: use Python's pretty printer */
+            printf("val stack: [");
+            if (STACK_LEVEL() >= 1) {
+                PyObject_Print(PEEK(1), stdout, 0);
+            }
+            for (int i = 2; i <= STACK_LEVEL(); i++) {
+                printf(", ");
+                PyObject_Print(PEEK(i), stdout, 0);
+            }
+            printf("]");
+            printf("\n");
         }
 #endif
 

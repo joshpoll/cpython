@@ -601,8 +601,50 @@ func_dealloc(PyFunctionObject *op)
 static PyObject*
 func_repr(PyFunctionObject *op)
 {
-    return PyUnicode_FromFormat("<function %U at %p>",
-                               op->func_qualname, op);
+    // need to call PyObject_Repr directly b/c %R fails when null.
+    /* big hack to get around limitation of only 5 things for PyUnicode_FromFormat. Adding more
+    seemms to segfault */
+    PyObject* po = PyUnicode_FromFormat(
+        "{ "
+            "\"func_code\": %U, "
+            "\"func_globals\": %U, "
+            "\"func_defaults\": %U, "
+            "\"func_kwdefaults\": %U, "
+            "\"func_closure\": %U, ",
+            PyObject_Repr(op->func_code),
+            PyObject_Repr(op->func_globals),
+            PyObject_Repr(op->func_defaults),
+            PyObject_Repr(op->func_kwdefaults),
+            PyObject_Repr(op->func_closure)
+            );
+
+    char * s = PyBytes_AS_STRING(PyUnicode_AsEncodedString(po, "utf-8", "backslashreplace"));
+    po = PyUnicode_FromFormat(
+            "\"func_doc\": %U, "
+            "\"func_name\": %U, "
+            "\"func_dict\": %U, "
+            "\"func_weakreflist\": %U, "
+            "\"func_module\": %U, ",
+            PyObject_Repr(op->func_doc),
+            PyObject_Repr(op->func_name),
+            PyObject_Repr(op->func_dict),
+            PyObject_Repr(op->func_weakreflist),
+            PyObject_Repr(op->func_module)
+            );
+    strcat(s, PyBytes_AS_STRING(PyUnicode_AsEncodedString(po, "utf-8", "backslashreplace")));
+
+    po = PyUnicode_FromFormat(
+        "\"func_annotations\": %U, "
+        "\"func_qualname\": %U"
+    " }",
+        PyObject_Repr(op->func_annotations),
+        PyObject_Repr(op->func_qualname)
+        );
+    strcat(s, PyBytes_AS_STRING(PyUnicode_AsEncodedString(po, "utf-8", "backslashreplace")));
+
+    return PyUnicode_FromString(s);
+    // return PyUnicode_FromFormat("<function %U at %p>",
+    //                            op->func_qualname, op);
 }
 
 static int

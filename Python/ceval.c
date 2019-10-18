@@ -1324,15 +1324,15 @@ main_loop:
             } else {
                 printf("  \"val stack\": [\n");
                 if (STACK_LEVEL() >= 1) {
-                    printf("                 { \"type\": \"%s\", \"value\": \"", Py_TYPE(PEEK(1))->tp_name);
+                    printf("                 { \"type\": \"%s\", \"value\": ", Py_TYPE(PEEK(1))->tp_name);
                     PyObject_Print(PEEK(1), stdout, 0);
-                    printf("\" }");
+                    printf(" }");
                 }
                 for (int i = 2; i <= STACK_LEVEL(); i++) {
                     printf(",\n");
-                    printf("                 { \"type\": \"%s\", \"value\": \"", Py_TYPE(PEEK(1))->tp_name);
+                    printf("                 { \"type\": \"%s\", \"value\": ", Py_TYPE(PEEK(1))->tp_name);
                     PyObject_Print(PEEK(i), stdout, 0);
-                    printf("\" }");
+                    printf(" }");
                 }
                 printf("\n               ]\n");
             }

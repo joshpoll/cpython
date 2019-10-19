@@ -666,7 +666,17 @@ code_repr(PyCodeObject *co)
             "\"co_varnames\": %U, "
             "\"co_freevars\": %U, "
             "\"co_cellvars\": %U, "
-            "TODO: more fields here!!!"
+            "\"co_cell2arg\": TODO, "
+            "\"co_filename\": %U, "
+            "\"co_name\": %U, "
+            "\"co_lnotab\": %U, " /* TODO: improve. see Objects/lnotab_notes.txt */
+            "\"co_zombieframe\": TODO, "
+            "\"co_weakreflist\": %U, "
+            "\"co_extra\": TODO, "
+            "\"co_opcache_map\": TODO, "
+            "\"co_opcache\": TODO, "
+            "\"co_opcache_flag\": TODO, "
+            "\"co_opcache_size\": TODO"
         " }",
             co->co_argcount,
             co->co_posonlyargcount,
@@ -680,7 +690,18 @@ code_repr(PyCodeObject *co)
             PyObject_Repr(co->co_names),
             PyObject_Repr(co->co_varnames),
             PyObject_Repr(co->co_freevars),
-            PyObject_Repr(co->co_cellvars)
+            PyObject_Repr(co->co_cellvars),
+            /* co->co_cell2arg, */
+            PyObject_Repr(co->co_filename),
+            PyObject_Repr(co->co_name),
+            PyObject_Repr(co->co_lnotab),
+            /* co->co_zombieframe, */
+            PyObject_Repr(co->co_weakreflist)
+            /* co->co_extra, */
+            /* co->co_opcache_map, */
+            /* co->co_opcache, */
+            /* co->co_opcache_flag, */
+            /* co->co_opcache_size */
             );
 
     return po;

@@ -615,7 +615,8 @@ func_repr(PyFunctionObject *op)
             "\"func_weakreflist\": %U, "
             "\"func_module\": %U, "
             "\"func_annotations\": %U, "
-            "\"func_qualname\": %U"
+            "\"func_qualname\": %U, "
+            "\"vectorcall\": TODO"
         " }",
             PyObject_Repr(op->func_code),
             PyObject_Repr(op->func_globals),
@@ -629,6 +630,7 @@ func_repr(PyFunctionObject *op)
             PyObject_Repr(op->func_module),
             PyObject_Repr(op->func_annotations),
             PyObject_Repr(op->func_qualname)
+            /* op->vectorcall */
             );
 
     return po;

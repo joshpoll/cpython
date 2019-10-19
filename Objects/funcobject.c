@@ -604,7 +604,7 @@ func_repr(PyFunctionObject *op)
     // need to call PyObject_Repr directly b/c %R fails when null.
     /* big hack to get around limitation of only 5 things for PyUnicode_FromFormat. Adding more
     seemms to segfault */
-    PyObject* po = PyUnicode_FromFormat(
+    PyObject* po1 = PyUnicode_FromFormat(
         "{ "
             "\"func_code\": %U, "
             "\"func_globals\": %U, "
@@ -618,8 +618,7 @@ func_repr(PyFunctionObject *op)
             PyObject_Repr(op->func_closure)
             );
 
-    char * s = PyBytes_AS_STRING(PyUnicode_AsEncodedString(po, "utf-8", "backslashreplace"));
-    po = PyUnicode_FromFormat(
+    PyObject* po2 = PyUnicode_FromFormat(
             "\"func_doc\": %U, "
             "\"func_name\": %U, "
             "\"func_dict\": %U, "
@@ -631,16 +630,19 @@ func_repr(PyFunctionObject *op)
             PyObject_Repr(op->func_weakreflist),
             PyObject_Repr(op->func_module)
             );
-    strcat(s, PyBytes_AS_STRING(PyUnicode_AsEncodedString(po, "utf-8", "backslashreplace")));
 
-    po = PyUnicode_FromFormat(
+    PyObject* po3 = PyUnicode_FromFormat(
         "\"func_annotations\": %U, "
         "\"func_qualname\": %U"
     " }",
         PyObject_Repr(op->func_annotations),
         PyObject_Repr(op->func_qualname)
         );
-    strcat(s, PyBytes_AS_STRING(PyUnicode_AsEncodedString(po, "utf-8", "backslashreplace")));
+
+    /* https://stackoverflow.com/a/3923207 */
+    int size = snprintf(NULL, 0, "%s%s%s", PyUnicode_AsUTF8(po1), PyUnicode_AsUTF8(po2), PyUnicode_AsUTF8(po3));
+    char * s = malloc(size + 1);
+    sprintf(s, "%s%s%s", PyUnicode_AsUTF8(po1), PyUnicode_AsUTF8(po2), PyUnicode_AsUTF8(po3));
 
     return PyUnicode_FromString(s);
     // return PyUnicode_FromFormat("<function %U at %p>",

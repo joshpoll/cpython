@@ -651,39 +651,39 @@ code_replace_impl(PyCodeObject *self, int co_argcount,
 static PyObject *
 code_repr(PyCodeObject *co)
 {
-    PyObject* po1 = PyUnicode_FromFormat(
+    PyObject* po = PyUnicode_FromFormat(
         "{ "
             "\"co_argcount\": %d, "
             "\"co_posonlyargcount\": %d, "
             "\"co_kwonlyargcount\": %d, "
-            "\"co_nlocals\": %d, ",
+            "\"co_nlocals\": %d, "
+            "\"co_stacksize\": %d, "
+            "\"co_flags\": %d, "
+            "\"co_firstlineno\": %d, "
+            "\"co_code\": %U, "
+            "\"co_consts\": %U, "
+            "\"co_names\": %U, "
+            "\"co_varnames\": %U, "
+            "\"co_freevars\": %U, "
+            "\"co_cellvars\": %U, "
+            "TODO: more fields here!!!"
+        " }",
             co->co_argcount,
             co->co_posonlyargcount,
             co->co_kwonlyargcount,
-            co->co_nlocals
-            );
-
-    PyObject* po2 = PyUnicode_FromFormat(
-            "\"co_stacksize\": %d, "
-            "\"co_flags\": %d, "
-            // "\"co_firstlineno\": %d, "
-            /* "\"func_dict\": %U, "
-            "\"func_weakreflist\": %U, "
-            "\"func_module\": %U, " */,
+            co->co_nlocals,
             co->co_stacksize,
-            co->co_flags
-            // co->co_firstlineno
-            // PyObject_Repr(op->func_dict),
-            // PyObject_Repr(op->func_weakreflist),
-            // PyObject_Repr(op->func_module)
+            co->co_flags,
+            co->co_firstlineno,
+            PyObject_Repr(co->co_code),
+            PyObject_Repr(co->co_consts),
+            PyObject_Repr(co->co_names),
+            PyObject_Repr(co->co_varnames),
+            PyObject_Repr(co->co_freevars),
+            PyObject_Repr(co->co_cellvars)
             );
 
-    /* https://stackoverflow.com/a/3923207 */
-    int size = snprintf(NULL, 0, "%s%s", PyUnicode_AsUTF8(po1), PyUnicode_AsUTF8(po2));
-    char * s = malloc(size + 1);
-    sprintf(s, "%s%s", PyUnicode_AsUTF8(po1), PyUnicode_AsUTF8(po2));
-
-    return PyUnicode_FromString(s);
+    return po;
     // int lineno;
     // if (co->co_firstlineno != 0)
     //     lineno = co->co_firstlineno;
